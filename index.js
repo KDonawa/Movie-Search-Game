@@ -24,10 +24,13 @@ const dropdown = document.querySelector('.dropdown');
 const resultsWrapper = document.querySelector('.results');
 
 async function onInput(e) {
-    resultsWrapper.innerHTML = "";
-
     const movies = await fetchData(e.target.value);
-    
+    if(movies.length === 0) {
+        dropdown.classList.remove('is-active');
+        return;
+    }
+
+    resultsWrapper.innerHTML = "";    
     dropdown.classList.add('is-active');
 
     for (const movie of movies) {
@@ -42,4 +45,10 @@ async function onInput(e) {
     }
 }
 
-input.addEventListener("input", debounce(onInput, 1000));
+input.addEventListener('input', debounce(onInput, 1000));
+
+document.addEventListener('click', e =>{
+    if(!root.contains(e.target)){
+        dropdown.classList.remove('is-active');
+    }
+});
