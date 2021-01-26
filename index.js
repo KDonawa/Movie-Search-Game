@@ -24,6 +24,8 @@ const dropdown = document.querySelector('.dropdown');
 const resultsWrapper = document.querySelector('.results');
 
 async function onInput(e) {
+    resultsWrapper.innerHTML = "";
+
     const movies = await fetchData(e.target.value);
     
     dropdown.classList.add('is-active');
@@ -32,7 +34,7 @@ async function onInput(e) {
         const option = document.createElement('a');
         option.classList.add('dropdown-item');
         option.innerHTML = `
-            <img src="${movie.Poster}">
+            <img src="${movie.Poster === 'N/A' ? '' : movie.Poster}">
             ${movie.Title}
         `;
 
