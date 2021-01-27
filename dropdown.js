@@ -1,5 +1,4 @@
 function createDropdown({
-    inputLabel,
     root,
     optionDisplay,
     onOptionSelected,
@@ -7,8 +6,7 @@ function createDropdown({
     fetchOptions
 }) {
     root.innerHTML = `
-        <label><b>${inputLabel}</b></label>
-        <input class="input">
+        <input class="input" placeholder="Search">
         <div class="dropdown">
             <div class="dropdown-menu">
                 <div class="dropdown-content results"></div>

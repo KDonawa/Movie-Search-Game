@@ -1,23 +1,36 @@
-createDropdown({
-    inputLabel: 'Search For a Movie',
-    root: document.querySelector('.autocomplete'),
+const dropdownConfig = {
     optionDisplay: (movie) => {
         return `
             <img src="${movie.Poster === 'N/A' ? '' : movie.Poster}">
             ${movie.Title} (${movie.Year})
         `;
     },
-    onOptionSelected: async (movie) => {
-        const movieData = await fetchDataById(movie.imdbID);
-        if (movieData) {
-            document.querySelector('#summary').innerHTML = generateMovieTemplate(movieData);
-        }
-    },
     inputValue: movie => movie.Title,
     fetchOptions: async (searchTerm) => await fetchData(searchTerm)
+};
+
+createDropdown({
+    root: document.querySelector('#left-search'),
+    onOptionSelected: async (movie) => {
+        await onOptionSelectedHelper(movie, document.querySelector('#left-details'))
+    },
+    ...dropdownConfig
+});
+createDropdown({
+    root: document.querySelector('#right-search'),
+    onOptionSelected: async (movie) => {
+        await onOptionSelectedHelper(movie, document.querySelector('#right-details'))
+    },
+    ...dropdownConfig
 });
 
-
+async function onOptionSelectedHelper(movie, target) {
+    const movieData = await fetchDataById(movie.imdbID);
+    if (movieData) {
+        document.querySelector('.tutorial').classList.add('is-hidden');
+        target.innerHTML = generateMovieTemplate(movieData);
+    }
+};
 function generateMovieTemplate(movieData) {
     return `
         <article class="media">
@@ -56,7 +69,6 @@ function generateMovieTemplate(movieData) {
         </article>
     `;
 };
-
 async function fetchData(searchTerm) {
     const response = await axios.get("http://www.omdbapi.com/", {
         params: {
