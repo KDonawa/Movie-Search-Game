@@ -1,60 +1,23 @@
-const root = document.querySelector('.autocomplete');
-root.innerHTML = `
-    <label><b>Search For a Movie</b></label>
-    <input class="input">
-    <div class="dropdown">
-        <div class="dropdown-menu">
-            <div class="dropdown-content results"></div>
-        </div>
-    </div>
-`;
-
-const input = document.querySelector('input');
-const dropdown = document.querySelector('.dropdown');
-const resultsWrapper = document.querySelector('.results');
-
-async function onInput(e) {
-    const movies = await fetchData(e.target.value);
-    if (movies.length === 0) {
-        dropdown.classList.remove('is-active');
-        return;
-    }
-
-    resultsWrapper.innerHTML = "";
-    dropdown.classList.add('is-active');
-
-    for (const movie of movies) {
-        const option = document.createElement('a');
-        option.classList.add('dropdown-item');
-        option.innerHTML = `
+createDropdown({
+    inputLabel: 'Search For a Movie',
+    root: document.querySelector('.autocomplete'),
+    optionDisplay: (movie) => {
+        return `
             <img src="${movie.Poster === 'N/A' ? '' : movie.Poster}">
-            ${movie.Title}
+            ${movie.Title} (${movie.Year})
         `;
-        option.addEventListener('click', () => {
-            onOptionSelected(movie);
-        });
-
-        resultsWrapper.appendChild(option);
-    }
-}
-
-input.addEventListener('input', debounce(onInput, 1000));
-
-document.addEventListener('click', e => {
-    if (!root.contains(e.target)) {
-        dropdown.classList.remove('is-active');
-    }
+    },
+    onOptionSelected: async (movie) => {
+        const movieData = await fetchDataById(movie.imdbID);
+        if (movieData) {
+            document.querySelector('#summary').innerHTML = generateMovieTemplate(movieData);
+        }
+    },
+    inputValue: movie => movie.Title,
+    fetchOptions: async (searchTerm) => await fetchData(searchTerm)
 });
 
-async function onOptionSelected(movie) {
-    dropdown.classList.remove('is-active');
-    input.value = movie.Title;
-    const movieData = await fetchDataById(movie.imdbID);
-    if (movieData) {
-        document.querySelector('#summary').innerHTML = generateMovieTemplate(movieData);
 
-    }
-};
 function generateMovieTemplate(movieData) {
     return `
         <article class="media">
@@ -92,4 +55,23 @@ function generateMovieTemplate(movieData) {
             <p class="subtitle">IMDB Votes</p>
         </article>
     `;
+};
+
+async function fetchData(searchTerm) {
+    const response = await axios.get("http://www.omdbapi.com/", {
+        params: {
+            apikey: "191dfc62",
+            s: searchTerm,
+        },
+    });
+    return response.data.Error ? [] : response.data.Search;
+};
+async function fetchDataById(searchId) {
+    const response = await axios.get("http://www.omdbapi.com/", {
+        params: {
+            apikey: "191dfc62",
+            i: searchId,
+        },
+    });
+    return response.data.Error ? null : response.data;
 };
