@@ -4,7 +4,8 @@ function createDropdown({
     onOptionSelected,
     inputValue,
     fetchOptions
-}) {
+}) 
+{
     root.innerHTML = `
         <input class="input" placeholder="Search">
         <div class="dropdown">
